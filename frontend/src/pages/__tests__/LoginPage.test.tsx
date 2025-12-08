@@ -1,20 +1,18 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from '../../state/AuthContext';
 import { LoginPage } from '../LoginPage';
 
 const server = setupServer(
-  rest.post('http://localhost:8080/auth/login', async (_req, res, ctx) =>
-    res(
-      ctx.status(200),
-      ctx.json({
-        token: 'dummy.jwt.token'
-      })
-    )
-  )
+  http.post('http://localhost:8080/auth/login', () => {
+    return HttpResponse.json(
+      { token: 'dummy.jwt.token' },
+      { status: 200 }
+    );
+  })
 );
 
 beforeAll(() => server.listen());
@@ -52,14 +50,12 @@ describe('LoginPage', () => {
 
   it('shows error message when backend returns 401', async () => {
     server.use(
-      rest.post('http://localhost:8080/auth/login', async (_req, res, ctx) =>
-        res(
-          ctx.status(401),
-          ctx.json({
-            message: 'Invalid credentials'
-          })
-        )
-      )
+      http.post('http://localhost:8080/auth/login', () => {
+        return HttpResponse.json(
+          { message: 'Invalid credentials' },
+          { status: 401 }
+        );
+      })
     );
 
     renderWithProviders();
