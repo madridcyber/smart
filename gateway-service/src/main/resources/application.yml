@@ -41,7 +41,7 @@ server:
 security:
   jwt:
     # Must match the secret used by the Auth service.
-    secret: ${JWT_SECRET:VGhpcy1pcy1hLWRldmVsb3BtZW50LXNlY3JldC1rZXktY2hhbmdlLW1lIQ==}
+    secret: ${JWT_SECRET:c21hcnQtdW5pdmVyc2l0eS1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tMjU2Yml0cw==}
 
 management:
   endpoints:

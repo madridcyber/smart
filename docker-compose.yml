@@ -157,7 +157,7 @@ services:
       dashboard-service:
         condition: service_started
     environment:
-      JWT_SECRET: "dev-jwt-secret-change-me"
+      JWT_SECRET: "c21hcnQtdW5pdmVyc2l0eS1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tMjU2Yml0cw=="
       AUTH_SERVICE_URL: http://auth-service:8081
       BOOKING_SERVICE_URL: http://booking-service:8082
       MARKETPLACE_SERVICE_URL: http://marketplace-service:8083
@@ -183,7 +183,7 @@ services:
       DB_NAME: authdb
       DB_USER: auth
       DB_PASSWORD: auth
-      JWT_SECRET: "dev-jwt-secret-change-me"
+      JWT_SECRET: "c21hcnQtdW5pdmVyc2l0eS1zZWNyZXQta2V5LWZvci1qd3QtdG9rZW4tMjU2Yml0cw=="
       JWT_EXPIRATION_MS: 3600000
       SERVER_PORT: 8081
 
