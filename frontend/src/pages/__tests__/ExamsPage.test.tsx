@@ -1,66 +1,59 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from '../../state/AuthContext';
 import { ExamsPage } from '../ExamsPage';
 
 const server = setupServer(
-  rest.get('http://localhost:8080/exam/exams', async (_req, res, ctx) =>
-    res(
-      ctx.status(200),
-      ctx.json([
-        {
-          id: 'exam-list-1',
-          title: 'Seeded Exam',
-          description: 'Seed',
-          startTime: new Date().toISOString(),
-          state: 'SCHEDULED'
-        }
-      ])
-    )
-  ),
-  rest.get('http://localhost:8080/exam/exams/exam-2', async (_req, res, ctx) =>
-    res(
-      ctx.status(200),
-      ctx.json({
-        id: 'exam-2',
-        title: 'Loaded Exam',
-        description: 'Demo',
+  http.get('http://localhost:8080/exam/exams', () => {
+    return HttpResponse.json([
+      {
+        id: 'exam-list-1',
+        title: 'Seeded Exam',
+        description: 'Seed',
         startTime: new Date().toISOString(),
-        state: 'LIVE',
-        questions: [
-          { id: 'q-1', text: 'What is microservices?', sortOrder: 1 }
-        ]
-      })
-    )
-  ),
-  rest.post('http://localhost:8080/exam/exams', async (_req, res, ctx) =>
-    res(
-      ctx.status(201),
-      ctx.json({
+        state: 'SCHEDULED'
+      }
+    ]);
+  }),
+  http.get('http://localhost:8080/exam/exams/exam-2', () => {
+    return HttpResponse.json({
+      id: 'exam-2',
+      title: 'Loaded Exam',
+      description: 'Demo',
+      startTime: new Date().toISOString(),
+      state: 'LIVE',
+      questions: [
+        { id: 'q-1', text: 'What is microservices?', sortOrder: 1 }
+      ]
+    });
+  }),
+  http.post('http://localhost:8080/exam/exams', () => {
+    return HttpResponse.json(
+      {
         id: 'exam-1',
         title: 'Midterm',
         description: 'Demo',
         startTime: new Date().toISOString(),
         state: 'SCHEDULED'
-      })
-    )
-  ),
-  rest.post('http://localhost:8080/exam/exams/exam-1/start', async (_req, res, ctx) =>
-    res(
-      ctx.status(200),
-      ctx.json({
-        id: 'exam-1',
-        title: 'Midterm',
-        description: 'Demo',
-        startTime: new Date().toISOString(),
-        state: 'LIVE'
-      })
-    )
-  ),
-  rest.post('http://localhost:8080/exam/exams/exam-2/submit', async (_req, res, ctx) => res(ctx.status(201)))
+      },
+      { status: 201 }
+    );
+  }),
+  http.post('http://localhost:8080/exam/exams/exam-1/start', () => {
+    return HttpResponse.json({
+      id: 'exam-1',
+      title: 'Midterm',
+      description: 'Demo',
+      startTime: new Date().toISOString(),
+      state: 'LIVE'
+    });
+  }),
+  http.post('http://localhost:8080/exam/exams/exam-2/submit', () => {
+    return new HttpResponse(null, { status: 201 });
+  })
 );
 
 beforeAll(() => server.listen());

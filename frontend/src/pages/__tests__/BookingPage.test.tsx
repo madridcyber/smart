@@ -1,24 +1,21 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from '../../state/AuthContext';
 import { BookingPage } from '../BookingPage';
 
 const server = setupServer(
-  rest.get('http://localhost:8080/booking/resources', async (_req, res, ctx) =>
-    res(
-      ctx.status(200),
-      ctx.json([
-        { id: 'r1', name: 'Room 101', type: 'CLASSROOM', capacity: 30 },
-        { id: 'r2', name: 'Lab A', type: 'LAB', capacity: 20 }
-      ])
-    )
-  ),
-  rest.post('http://localhost:8080/booking/reservations', async (_req, res, ctx) =>
-    res(ctx.status(201), ctx.json({ id: 'reservation-1' }))
-  )
+  http.get('http://localhost:8080/booking/resources', () => {
+    return HttpResponse.json([
+      { id: 'r1', name: 'Room 101', type: 'CLASSROOM', capacity: 30 },
+      { id: 'r2', name: 'Lab A', type: 'LAB', capacity: 20 }
+    ]);
+  }),
+  http.post('http://localhost:8080/booking/reservations', () => {
+    return HttpResponse.json({ id: 'reservation-1' }, { status: 201 });
+  })
 );
 
 beforeAll(() => server.listen());
@@ -70,9 +67,9 @@ describe('BookingPage', () => {
 
   it('shows conflict message when reservation overlaps', async () => {
     server.use(
-      rest.post('http://localhost:8080/booking/reservations', async (_req, res, ctx) =>
-        res(ctx.status(409), ctx.json({ message: 'Conflict' }))
-      )
+      http.post('http://localhost:8080/booking/reservations', () => {
+        return HttpResponse.json({ message: 'Conflict' }, { status: 409 });
+      })
     );
 
     renderWithProviders();

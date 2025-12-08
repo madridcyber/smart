@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from '../../state/AuthContext';
@@ -10,35 +10,27 @@ const productsPath = 'http://localhost:8080/market/products';
 const checkoutPath = 'http://localhost:8080/market/orders/checkout';
 
 const server = setupServer(
-  rest.get(productsPath, async (_req, res, ctx) =>
-    res(
-      ctx.status(200),
-      ctx.json([
-        { id: 'p1', name: 'Notebook', description: 'A5', price: 5.0, stock: 10 },
-        { id: 'p2', name: 'Textbook', description: 'Algorithms', price: 50.0, stock: 5 }
-      ])
-    )
-  ),
-  rest.post(checkoutPath, async (_req, res, ctx) =>
-    res(
-      ctx.status(201),
-      ctx.json({
-        id: 'order-1'
-      })
-    )
-  ),
-  rest.post(productsPath, async (_req, res, ctx) =>
-    res(
-      ctx.status(201),
-      ctx.json({
+  http.get(productsPath, () => {
+    return HttpResponse.json([
+      { id: 'p1', name: 'Notebook', description: 'A5', price: 5.0, stock: 10 },
+      { id: 'p2', name: 'Textbook', description: 'Algorithms', price: 50.0, stock: 5 }
+    ]);
+  }),
+  http.post(checkoutPath, () => {
+    return HttpResponse.json({ id: 'order-1' }, { status: 201 });
+  }),
+  http.post(productsPath, () => {
+    return HttpResponse.json(
+      {
         id: 'p3',
         name: 'Lab Manual',
         description: 'Chemistry experiments',
         price: 15.0,
         stock: 20
-      })
-    )
-  )
+      },
+      { status: 201 }
+    );
+  })
 );
 
 beforeAll(() => server.listen());
@@ -118,14 +110,9 @@ describe('MarketplacePage', () => {
   it('shows insufficient stock message on checkout conflict', async () => {
     seedStudentToken();
     server.use(
-      rest.post(checkoutPath, async (_req, res, ctx) =>
-        res(
-          ctx.status(409),
-          ctx.json({
-            message: 'Insufficient stock'
-          })
-        )
-      )
+      http.post(checkoutPath, () => {
+        return HttpResponse.json({ message: 'Insufficient stock' }, { status: 409 });
+      })
     );
 
     renderWithProviders();
@@ -144,14 +131,9 @@ describe('MarketplacePage', () => {
   it('shows payment failure message on checkout 402', async () => {
     seedStudentToken();
     server.use(
-      rest.post(checkoutPath, async (_req, res, ctx) =>
-        res(
-          ctx.status(402),
-          ctx.json({
-            message: 'Payment required'
-          })
-        )
-      )
+      http.post(checkoutPath, () => {
+        return HttpResponse.json({ message: 'Payment required' }, { status: 402 });
+      })
     );
 
     renderWithProviders();
@@ -172,14 +154,9 @@ describe('MarketplacePage', () => {
 
     let receivedBody: any = null;
     server.use(
-      rest.post(checkoutPath, async (req, res, ctx) => {
-        receivedBody = await req.json();
-        return res(
-          ctx.status(201),
-          ctx.json({
-            id: 'order-cart-1'
-          })
-        );
+      http.post(checkoutPath, async ({ request }) => {
+        receivedBody = await request.json();
+        return HttpResponse.json({ id: 'order-cart-1' }, { status: 201 });
       })
     );
 
