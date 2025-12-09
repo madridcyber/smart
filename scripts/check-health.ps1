@@ -5,29 +5,29 @@ Write-Host "`n===========================================" -ForegroundColor Cyan
 Write-Host "  Smart University Health Check" -ForegroundColor Cyan
 Write-Host "===========================================" -ForegroundColor Cyan
 
-$services = @(
+# Services accessible via exposed ports
+$exposedServices = @(
     @{ Name = "Gateway"; Port = 8080; HealthPath = "/actuator/health" },
-    @{ Name = "Auth Service"; Port = 8081; HealthPath = "/actuator/health" },
-    @{ Name = "Booking Service"; Port = 8082; HealthPath = "/actuator/health" },
-    @{ Name = "Marketplace Service"; Port = 8083; HealthPath = "/actuator/health" },
-    @{ Name = "Payment Service"; Port = 8084; HealthPath = "/actuator/health" },
-    @{ Name = "Exam Service"; Port = 8085; HealthPath = "/actuator/health" },
-    @{ Name = "Notification Service"; Port = 8086; HealthPath = "/actuator/health" },
-    @{ Name = "Dashboard Service"; Port = 8087; HealthPath = "/actuator/health" },
     @{ Name = "Frontend"; Port = 3000; HealthPath = "/" }
 )
 
-$infrastructure = @(
-    @{ Name = "RabbitMQ"; Port = 15672; HealthPath = "/" },
-    @{ Name = "Redis"; Port = 6379; Command = "redis-cli ping" }
+# Internal services checked via Docker container health
+$dockerServices = @(
+    @{ Name = "Auth Service"; Container = "auth-service" },
+    @{ Name = "Booking Service"; Container = "booking-service" },
+    @{ Name = "Marketplace Service"; Container = "marketplace-service" },
+    @{ Name = "Payment Service"; Container = "payment-service" },
+    @{ Name = "Exam Service"; Container = "exam-service" },
+    @{ Name = "Notification Service"; Container = "notification-service" },
+    @{ Name = "Dashboard Service"; Container = "dashboard-service" }
 )
 
-Write-Host "`n📡 Checking Microservices..." -ForegroundColor Yellow
+Write-Host "`n📡 Checking Exposed Services..." -ForegroundColor Yellow
 
 $healthyCount = 0
-$totalCount = $services.Count
+$totalCount = $exposedServices.Count + $dockerServices.Count
 
-foreach ($svc in $services) {
+foreach ($svc in $exposedServices) {
     $url = "http://localhost:$($svc.Port)$($svc.HealthPath)"
     Write-Host -NoNewline "   $($svc.Name.PadRight(25))"
     
@@ -42,6 +42,24 @@ foreach ($svc in $services) {
     }
     catch {
         Write-Host "❌ DOWN" -ForegroundColor Red
+    }
+}
+
+Write-Host "`n🐳 Checking Docker Services (via container status)..." -ForegroundColor Yellow
+
+foreach ($svc in $dockerServices) {
+    Write-Host -NoNewline "   $($svc.Name.PadRight(25))"
+    try {
+        $status = docker inspect --format='{{.State.Status}}' $svc.Container 2>$null
+        if ($status -eq "running") {
+            Write-Host "✅ Running" -ForegroundColor Green
+            $healthyCount++
+        } else {
+            Write-Host "⚠️  $status" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        Write-Host "❌ Not found" -ForegroundColor Red
     }
 }
 
