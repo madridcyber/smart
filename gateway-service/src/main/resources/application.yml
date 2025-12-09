@@ -4,6 +4,38 @@ spring:
   cloud:
     gateway:
       routes:
+        # Health check routes (must be before main service routes)
+        - id: auth-health
+          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/auth/actuator/health
+          filters:
+            - RewritePath=/auth/actuator/health, /actuator/health
+        - id: booking-health
+          uri: ${BOOKING_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/booking/actuator/health
+          filters:
+            - RewritePath=/booking/actuator/health, /actuator/health
+        - id: market-health
+          uri: ${MARKETPLACE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/market/actuator/health
+          filters:
+            - RewritePath=/market/actuator/health, /actuator/health
+        - id: exam-health
+          uri: ${EXAM_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/exam/actuator/health
+          filters:
+            - RewritePath=/exam/actuator/health, /actuator/health
+        - id: dashboard-health
+          uri: ${DASHBOARD_SERVICE_URL:http://localhost:8087}
+          predicates:
+            - Path=/dashboard/actuator/health
+          filters:
+            - RewritePath=/dashboard/actuator/health, /actuator/health
+        # Main service routes
         - id: auth-service
           uri: ${AUTH_SERVICE_URL:http://localhost:8081}
           predicates:

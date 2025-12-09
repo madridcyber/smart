@@ -1,9 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-const apiBase =
-  typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_API_BASE_URL
-    ? (import.meta as any).env.VITE_API_BASE_URL
-    : 'http://localhost:8080';
+const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export const api = axios.create({
   baseURL: apiBase,
@@ -31,7 +28,7 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${currentToken}`;
   }
   if (currentTenantId) {
-    (config.headers as any)['X-Tenant-Id'] = currentTenantId;
+    config.headers['X-Tenant-Id'] = currentTenantId;
   }
   return config;
 });
@@ -40,12 +37,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    // Log errors for debugging
+    // Log errors for debugging (legitimate use case for API errors)
+    // eslint-disable-next-line no-console
     if (error.response) {
       console.error(`API Error [${error.response.status}]:`, error.response.data);
     } else if (error.request) {
+      // eslint-disable-next-line no-console
       console.error('API Error: No response received', error.message);
     } else {
+      // eslint-disable-next-line no-console
       console.error('API Error:', error.message);
     }
     return Promise.reject(error);
