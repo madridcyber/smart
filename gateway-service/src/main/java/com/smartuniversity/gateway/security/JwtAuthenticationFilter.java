@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
 
         // Allow unauthenticated access to auth endpoints and actuator health
-        if (path.startsWith("/auth/") || path.startsWith("/actuator/")) {
+        if (path.startsWith("/auth/") || path.startsWith("/actuator/") || path.contains("/actuator/health")) {
             return chain.filter(exchange);
         }
 
