@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, NavLink, Route, Routes } from 'react-router-dom';
-import { useAuth } from './state/AuthContext';
+import { useAuth, AuthProvider } from './state/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -18,7 +18,7 @@ const Protected: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const { token, role, tenantId, logout } = useAuth();
 
   return (
@@ -109,5 +109,13 @@ export const App: React.FC = () => {
       </main>
     </div>
     </ToastProvider>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
