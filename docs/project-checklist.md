@@ -122,12 +122,13 @@ This document provides a comprehensive checklist of all project requirements and
 | README.md | ✅ | `/README.md` |
 | Architecture (C4) | ✅ | `/docs/architecture.md` |
 | API Overview | ✅ | `/docs/api-overview.md` |
-| AI Log | ✅ | `/docs/AI_Log.md` |
-| Learning Report | ✅ | `/docs/Learning_Report.md` |
+| AI_Log.md | ✅ | `/docs/AI_Log.md` |
+| Learning_Report.md | ✅ | `/docs/Learning_Report.md` |
 | Presentation (English) | ✅ | `/docs/presentation.md` |
 | Presentation (Persian) | ✅ | `/docs/presentation-fa.md` |
 | Project Checklist | ✅ | `/docs/project-checklist.md` |
 | Quick Start Guide | ✅ | `/docs/quick-start.md` |
+| Testing Guide | ✅ | `/docs/testing-guide.md` |
 
 ---
 
