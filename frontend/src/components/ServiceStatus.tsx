@@ -53,6 +53,7 @@ export const ServiceStatus: React.FC = () => {
   const healthyCount = services.filter(s => s.status === 'up').length;
   const totalCount = services.length;
   const allHealthy = healthyCount === totalCount;
+  const allDown = healthyCount === 0 && services.every(s => s.status === 'down');
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -83,10 +84,10 @@ export const ServiceStatus: React.FC = () => {
           width: '8px',
           height: '8px',
           borderRadius: '50%',
-          backgroundColor: allHealthy ? '#10b981' : '#f59e0b',
+          backgroundColor: allHealthy ? '#10b981' : allDown ? '#ef4444' : '#f59e0b',
           animation: allHealthy ? 'none' : 'pulse 2s infinite',
         }} />
-        {healthyCount}/{totalCount} Services
+        {allDown ? 'Offline' : `${healthyCount}/${totalCount} Services`}
       </button>
 
       {expanded && (

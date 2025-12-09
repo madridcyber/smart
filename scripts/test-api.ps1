@@ -112,12 +112,11 @@ if ($resources) {
 # Create a reservation (if resources exist)
 if ($resources -and $resources.Count -gt 0) {
     $resourceId = $resources[0].id
-    $startTime = (Get-Date).AddHours(1).ToString("yyyy-MM-ddTHH:00:00")
-    $endTime = (Get-Date).AddHours(2).ToString("yyyy-MM-ddTHH:00:00")
+    $startTime = (Get-Date).AddHours(1).ToUniversalTime().ToString("yyyy-MM-ddTHH:00:00Z")
+    $endTime = (Get-Date).AddHours(2).ToUniversalTime().ToString("yyyy-MM-ddTHH:00:00Z")
     
     $reservationBody = @{
         resourceId = $resourceId
-        userId = $testUser
         startTime = $startTime
         endTime = $endTime
     } | ConvertTo-Json
@@ -171,9 +170,13 @@ if ($exams) {
 $examBody = @{
     title = "Test Exam $timestamp"
     description = "Created by API test"
-    scheduledStart = (Get-Date).AddDays(1).ToString("yyyy-MM-ddTHH:00:00")
-    durationMinutes = 60
-} | ConvertTo-Json
+    startTime = (Get-Date).AddDays(1).ToUniversalTime().ToString("yyyy-MM-ddTHH:00:00Z")
+    questions = @(
+        @{
+            text = "What is the capital of France?"
+        }
+    )
+} | ConvertTo-Json -Depth 3
 
 $newExam = Invoke-API -Method "POST" -Endpoint "/exam/exams" -Headers $authHeaders -Body $examBody -Description "Create a new exam (TEACHER)"
 
