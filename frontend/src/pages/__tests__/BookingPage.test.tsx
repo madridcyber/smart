@@ -90,4 +90,4 @@ describe('BookingPage', () => {
       expect(screen.getByText(/slot is already booked/i)).toBeInTheDocument();
     });
   });
-}
+});
