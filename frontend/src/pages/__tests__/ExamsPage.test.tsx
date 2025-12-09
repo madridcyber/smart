@@ -145,4 +145,4 @@ describe('ExamsPage', () => {
       expect(screen.getByText(/Submission sent successfully/i)).toBeInTheDocument();
     });
   });
-}
+});

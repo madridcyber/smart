@@ -198,4 +198,4 @@ describe('MarketplacePage', () => {
     expect(quantities['p1']).toBe(2);
     expect(quantities['p2']).toBe(1);
   });
-}
+});
