@@ -50,12 +50,14 @@ Write-Host "`n🐳 Checking Docker Services (via container status)..." -Foregrou
 foreach ($svc in $dockerServices) {
     Write-Host -NoNewline "   $($svc.Name.PadRight(25))"
     try {
-        $status = docker inspect --format='{{.State.Status}}' $svc.Container 2>$null
-        if ($status -eq "running") {
+        $status = docker inspect --format "{{.State.Status}}" $svc.Container 2>$null
+        if ($status -match "running") {
             Write-Host "✅ Running" -ForegroundColor Green
             $healthyCount++
-        } else {
+        } elseif ($status) {
             Write-Host "⚠️  $status" -ForegroundColor Yellow
+        } else {
+            Write-Host "❌ Not found" -ForegroundColor Red
         }
     }
     catch {
@@ -97,7 +99,7 @@ $databases = @("auth-db", "booking-db", "market-db", "payment-db", "exam-db", "n
 foreach ($db in $databases) {
     Write-Host -NoNewline "   $($db.PadRight(25))"
     try {
-        $status = docker inspect --format='{{.State.Status}}' $db 2>$null
+        $status = docker inspect --format "{{.State.Status}}" $db 2>$null
         if ($status -eq "running") {
             Write-Host "✅ Running" -ForegroundColor Green
         } else {
