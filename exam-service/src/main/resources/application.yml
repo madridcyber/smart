@@ -1,6 +1,9 @@
 spring:
   application:
     name: exam-service
+  autoconfigure:
+    exclude:
+      - io.github.resilience4j.springboot3.fallback.autoconfigure.FallbackConfigurationOnMissingBean
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:examdb}
     username: ${DB_USER:exam}
